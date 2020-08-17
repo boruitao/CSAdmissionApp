@@ -1,0 +1,246 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+div {
+    display: block;
+}
+
+.red-hr{
+    border: 1px solid #ed1b2f;
+}
+
+.grey-hr{
+    margin-top: 20px;
+    border: 1px solid #a09e9e;
+}
+
+header{
+    display: block;
+}
+
+img {
+    width: 56px;
+    position: absolute;
+    left: 10px;
+    top: 15px;
+    z-index: 1;
+    width: 50px;
+    margin: 0px;
+    box-shadow: 0px 0px 6px rgba(0,0,0,.2);
+    border: 3px solid white;
+    border-radius: 2px;
+}
+
+.header-wrapper{
+    position: relative;
+    width: 600px;
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.master-title{
+    display: block;
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 16px;
+    line-height: 26px;
+    margin-bottom: 0px;
+}
+
+.school-title{
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #545454;
+    font-size: 14px;
+}
+
+.main{
+    width: 600px;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    font-family: "Open Sans";
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.trans-info-div{
+    display: flex;
+}
+.uni-div, .country-div{
+    width: 300px;
+}
+
+.uni, .country, .new-student-name, .new-student-mid, .new-student-email, .new-student-gre, .new-student-gpa {
+    padding: 10px, 5px;
+    font-size: 16px;
+    border: 1px solid #cdcdcd;
+    height: 50px;
+    box-sizing: border-box;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 6px;
+}
+
+.uni, .country{
+    width: 95%;
+    height: 40px;
+}
+
+label {
+    font-size: 14px;
+    color: #545454
+}
+
+.review-button, .back-submit-div{
+    margin-top: 40px;
+    text-align: right;
+}
+
+.add-row-button-div{
+    margin-top: 20px;
+    text-align: right;
+}
+
+.add-remove-div{
+    margin-top: 20px;
+    text-align: center;
+    display: flex;
+}
+
+.message{
+    text-align: center;
+}
+p{
+    color: #ed1b2f;
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+.trans-table-div{
+    margin-top: 20px;
+}
+
+.trans-table{
+    border-collapse: collapse;
+    table-layout: auto;
+    width: 100%;
+}
+
+td{
+    border: 1px solid #cdcdcd; 
+}
+
+th{
+    background-color: #6e726e;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 8px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 100;
+    color: white;
+}
+
+.cname-th{
+    width: 50%;
+}
+
+.ccode-entry, .cname-entry, .credit-entry, .grade-entry{
+    width: 100%;
+    border: 0px solid #cdcdcd;
+    height: 30px;
+    box-sizing: border-box;
+    font-size: 13px;
+}
+
+#transcripts{
+    list-style-type: none;
+    padding: 0;
+}
+
+#student-review, #trans-review{
+    list-style-type: none;
+    padding: 0px;
+    margin-top: 30px;
+    margin-bottom: 0;
+}
+
+#student-review li, #trans-review li { 
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+#student-review li:nth-child(odd), #trans-review li:nth-child(odd) { 
+    background: rgb(225, 224, 224); 
+}
+
+.review, .back, .submit {
+    width: 15%;
+    padding: 8px;
+    cursor: pointer;
+    background: #ed1b2f;
+    color: white;
+    border: 3px solid #ed1b2f;
+    border-radius: 5px;
+    position: relative;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    box-shadow: 0 3px 1px -2px #ccc;
+    text-overflow: ellipsis;
+    align-content: center;
+    user-select: none;
+    z-index: 1;
+    margin: auto;
+}
+
+.back, .submit{
+    margin-left: 15px;
+}
+
+.add-trans-button, .remove-trans-button{
+    width :100%;
+}
+
+.addrow, .add-trans, .remove-trans{
+    width: 150px;
+    padding: 5px;
+    cursor: pointer;
+    background: #6e726e;
+    color: white;
+    border: 3px solid #6e726e;
+    border-radius: 5px;
+    position: relative;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    box-shadow: 0 3px 1px -2px #ccc;
+    text-overflow: ellipsis;
+    align-content: center;
+    user-select: none;
+    z-index: 1;
+    margin: auto;
+}
+
+.student-info-review, .trans-info-review{
+    width : 100%;
+    font-size: 16px;
+}
+
+.add-trans, .remove-trans{
+    width : 200px;
+}

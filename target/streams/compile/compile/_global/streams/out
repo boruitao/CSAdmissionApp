@@ -1,0 +1,9 @@
+[0m[[0m[0minfo[0m] [0m[0m/Users/toukashiwaakira/Desktop/scala-gpa/src/main/scala/Main.scala:95:8: INSERT INTO student (sid,mid,email,name,gpa,gre) VALUES (?, ?, ?, ?, ?, ?)[0m
+[0m[[0m[0minfo[0m] [0m[0m    run([0m
+[0m[[0m[0minfo[0m] [0m[0m       ^[0m
+[0m[[0m[0minfo[0m] [0m[0m/Users/toukashiwaakira/Desktop/scala-gpa/src/main/scala/Main.scala:111:12: INSERT INTO transcript (tid,sid,university,country) VALUES (?, ?, ?, ?)[0m
+[0m[[0m[0minfo[0m] [0m[0m        run([0m
+[0m[[0m[0minfo[0m] [0m[0m           ^[0m
+[0m[[0m[0minfo[0m] [0m[0m/Users/toukashiwaakira/Desktop/scala-gpa/src/main/scala/Main.scala:124:15: INSERT INTO entry (eid,tid,coursecode,coursename,grade,credit) VALUES (?, ?, ?, ?, ?, ?)[0m
+[0m[[0m[0minfo[0m] [0m[0m           run([0m
+[0m[[0m[0minfo[0m] [0m[0m              ^[0m

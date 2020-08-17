@@ -1,0 +1,5 @@
+[0m[[0m[0mdebug[0m] [0m[0m[watch] [scala-gpa / Compile / run] Found inputs: /Users/toukashiwaakira/Desktop/scala-gpa/*.{java,scala},/Users/toukashiwaakira/Desktop/scala-gpa/src/main/java/**/*.{java,scala},/Users/toukashiwaakira/Desktop/scala-gpa/src/main/resources/**/*,/Users/toukashiwaakira/Desktop/scala-gpa/src/main/scala/**/*.{java,scala},/Users/toukashiwaakira/Desktop/scala-gpa/src/main/scala-2.13/**/*.{java,scala}[0m
+[0m[[0m[0minfo[0m] [0m[0m1. Monitoring source files for scala-gpa/run...[0m
+[0m[[0m[0minfo[0m] [0m[0m   Press <enter> to interrupt or '?' for more options.[0m
+[0m[[0m[0mdebug[0m] [0m[0m[watch] [debug] Received input event: Run().[0m
+[0m[[0m[0mdebug[0m] [0m[0m[watch] [debug] Received input event: Run().[0m
