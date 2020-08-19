@@ -71,14 +71,16 @@ img {
     box-sizing: border-box;
 }
 
-.trans-info-div{
-    display: flex;
+.mid-div, .email-div, .toefl-div, .gre-div{
+    margin-top: 25px;
+    margin-bottom: 0px;
 }
-.uni-div, .country-div{
+.uni-div, .country-div, .first-name-div, .last-name-div, .degree-div{
+    margin-top: 13px;
     width: 300px;
 }
 
-.uni, .country, .new-student-name, .new-student-mid, .new-student-email, .new-student-gre, .new-student-gpa {
+.uni, .country, .student-first-name, .student-last-name, .new-student-mid, .new-student-email{
     padding: 10px, 5px;
     font-size: 16px;
     border: 1px solid #cdcdcd;
@@ -89,14 +91,28 @@ img {
     margin-top: 6px;
 }
 
-.uni, .country{
-    width: 95%;
+.toefl-listening, .toefl-reading, .toefl-speaking, .toefl-writing, .gre-verbal, .gre-quant, .gre-writing {
+    font-size: 16px;
+    border: 0px solid #cdcdcd;
+    height: 30px;
+    box-sizing: border-box;
+    font-size: 16px;
+    width: 100%;
+}
+
+.toefl-table-head, .gre-table-head{
+    text-align: center;
+}
+
+.uni, .country,.student-first-name, .student-last-name{
+    width: 90%;
     height: 40px;
 }
 
 label {
     font-size: 14px;
-    color: #545454
+    font-weight: bold;
+    color: #151313
 }
 
 .review-button, .back-submit-div{
@@ -125,13 +141,24 @@ p{
 }
 
 .trans-table-div{
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
-.trans-table{
+.trans-table, .toefl-table, .gre-table{
     border-collapse: collapse;
     table-layout: auto;
     width: 100%;
+}
+
+.toefl-table, .gre-table{
+    margin-top: 10px;
+}
+
+.degree-select{
+    margin-top: 6px;
+    margin-bottom: 5px;
+    width: 90%;
+    height: 40px;
 }
 
 td{
@@ -139,9 +166,10 @@ td{
 }
 
 th{
+    border: 1px solid #cdcdcd; 
     background-color: #6e726e;
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     padding-left: 8px;
     text-align: left;
     font-size: 14px;
@@ -159,6 +187,14 @@ th{
     height: 30px;
     box-sizing: border-box;
     font-size: 13px;
+}
+
+#transcripts-div{
+    margin-top: 40px;
+}
+
+#general-info{
+    margin-bottom: 40px;
 }
 
 #transcripts{
@@ -243,4 +279,8 @@ th{
 
 .add-trans, .remove-trans{
     width : 200px;
+}
+
+.red-star{
+    color: red;
 }

@@ -34,13 +34,15 @@ function bindIndexedEvent(cls, func){
     });
 }
 
-function getStudentJsonRequest(sid, newName, newMid, newEmail, newGpa, newGre){
-    var obj = {"sid":sid, "name":newName, "mid":newMid, "email":newEmail, "gpa":Number(newGpa), "gre":Number(newGre)};
+function getStudentJsonRequest(sid, firstName, lastName, mid, email, tlis, tread, tspeak, twrite, gverbal, gquant, gwrite){
+    var obj = {"sid":sid, "firstname":firstName, "lastname":lastName, "mid":mid, "email":email, 
+        "tlisten": Number(tlis), "tread": Number(tread), "tspeak": Number(tspeak), "twrite": Number(twrite), 
+        "gverbal": Number(gverbal), "gquant": Number(gquant), "gwrite": Number(gwrite)};
     return obj;
 }
 
-function getTransJsonRequest(sid, tid, newUni, newCountry){
-    var obj = {"tid":tid,"sid":sid, "university":newUni, "country":newCountry};
+function getTransJsonRequest(sid, tid, degree, newUni, newCountry){
+    var obj = {"tid":tid,"sid":sid, "degree":degree,"university":newUni, "country":newCountry};
     return obj;
 }
 
@@ -67,57 +69,96 @@ function checkEmail(newEmail){
     return true;
 }
 
-function checkGPA(newGpa){
-    if(!newGpa) return false;
-    let isGpa = /^\d*(\.\d{0,2})?$/.test(newGpa);
-    if(!isGpa || Number(newGpa) > 4 || Number(newGpa) < 0){
+function checkToefl(tlisInput, treadInput, tspeakInput, twriteInput){
+    if(!tlisInput && !treadInput && !tspeakInput && !twriteInput) return true;
+    else if(!tlisInput || !treadInput || !tspeakInput || !twriteInput) return false;
+    let isnum = /^\d+$/.test(tlisInput) && /^\d+$/.test(treadInput) && /^\d+$/.test(tspeakInput) && /^\d+$/.test(twriteInput);
+    if(!isnum || Number(tlisInput) > 30 || Number(tlisInput) < 0 || Number(treadInput) > 30 || Number(treadInput) < 0
+        || Number(tspeakInput) > 30 || Number(tspeakInput) < 0 || Number(twriteInput) > 30 || Number(twriteInput) < 0){
         return false;
     }
     return true;
 }
 
-function checkGRE(newGre){
-    if(!newGre || 0 === newGre.length) return true;
-    let isnum = /^\d+$/.test(newGre);
-    if(!isnum|| Number(newGre) > 340 || Number(newGre) < 0){
+function checkGRE(gverbalInput, gquantInput, gwriteInput){
+    if(!gverbalInput && !gquantInput && !gwriteInput) return true;
+    else if(!gverbalInput || !gquantInput || !gwriteInput) return false;
+    let isnum = /^\d+$/.test(gverbalInput) && /^\d+$/.test(gquantInput) && /^\d+$/.test(gwriteInput);
+    if(!isnum|| Number(gverbalInput) > 170 || Number(gverbalInput) < 130 || Number(gquantInput) > 170 || Number(gquantInput) < 130
+        || Number(gwriteInput) > 6 || Number(gquantInput) < 0){
         return false;
     }
     return true;
 }
 
-function checkValidity(newNameInput, newMidInput, newEmailInput,newGpaInput, newGreInput){
+function checkTable(ccode, cname, credit, grade){
+    if(!ccode.value && !cname.value && !credit.value && !grade.value){
+        return true;
+    } else if (!ccode.value || !cname.value || !credit.value || !grade.value){
+        return false;
+    } else if(!(/^\d+$/.test(credit.value))){
+        return false;
+    }
+    return true;
+}
+
+function checkTransInfo(trans, newUni, newCountry){
+    var invalidUni = trans.getElementsByClassName("invalid-uni")[0];
+    var invalidCountry = trans.getElementsByClassName("invalid-country")[0];
+    var isValid = true;
+    if(!newUni.value){
+        invalidUni.innerHTML = "Please specify the university."
+        isValid = false;
+    }else{
+        invalidUni.innerHTML = "";
+    }
+    if(!newCountry.value){
+        invalidCountry.innerHTML = "Please specify the country of the university."
+        isValid = false;
+    }else{
+        invalidCountry.innerHTML = "";
+    }
+    return isValid;
+}
+
+function checkStudentInfo(firstNameInput, lastNameInput, midInput, emailInput, tlisInput, 
+    treadInput, tspeakInput, twriteInput, gverbalInput, gquantInput, gwriteInput){
     var invalidNameP = document.getElementsByClassName("invalid-name")[0];
     var invalidMidP = document.getElementsByClassName("invalid-mid")[0];
     var invalidEmailP = document.getElementsByClassName("invalid-email")[0];
-    var invalidGpaP = document.getElementsByClassName("invalid-gpa")[0];
+    var invalidToefL = document.getElementsByClassName("invalid-toefl")[0];
     var invalidGreP = document.getElementsByClassName("invalid-gre")[0];
 
     var isValid = true;
-    if(!newNameInput.value){
+    if(!firstNameInput.value || !lastNameInput.value){
         invalidNameP.innerHTML = "Please specify your full name.";
         isValid = false;
     }else{
         invalidNameP.innerHTML = "";
     }
-    if(!checkMid(newMidInput.value)){
+
+    if(!checkMid(midInput.value)){
         invalidMidP.innerHTML = "Please specify your McGill ID correctly.";
         isValid = false;
     } else{
         invalidMidP.innerHTML = "";
     }
-    if(!checkEmail(newEmailInput.value)){
+
+    if(!checkEmail(emailInput.value)){
         invalidEmailP.innerHTML = "Please specify your McGill Email in the following format: last.first@mail.mcgill.ca.";
         isValid = false;
     } else {
         invalidEmailP.innerHTML = "";
     }
-    if(!checkGPA(newGpaInput.value)){
-        invalidGpaP.innerHTML = "Please specify your GPA in 4.0 scale.";
+    
+    if(!checkToefl(tlisInput.value, treadInput.value, tspeakInput.value, twriteInput.value)){
+        invalidToefL.innerHTML = "Please specify your TOEFL correctly.";
         isValid = false;
     } else {
-        invalidGpaP.innerHTML = "";
+        invalidToefL.innerHTML = "";
     }
-    if(!checkGRE(newGreInput.value)){
+
+    if(!checkGRE(gverbalInput.value, gquantInput.value, gwriteInput.value)){
         invalidGreP.innerHTML = "Please specify your GRE scre correctly.";
         isValid = false;
     } else {
@@ -143,7 +184,10 @@ function insertData(mainPage, transTable, data){
     var student_ul = document.createElement('ul');
     student_ul.setAttribute('id', 'student-review');
     var li = document.createElement('li');
-    li.innerHTML = "Full Name:".bold() + "   " + data['student']['name'];
+    li.innerHTML = "First Name:".bold() + "   " + data['student']['firstname'];
+    student_ul.appendChild(li);
+    li = document.createElement('li');
+    li.innerHTML = "Last Name:".bold() + "   " + data['student']['lastname'];
     student_ul.appendChild(li);
     li = document.createElement('li');
     li.innerHTML = "McGill ID:".bold() + "   " + data['student']['mid'];
@@ -151,12 +195,30 @@ function insertData(mainPage, transTable, data){
     li = document.createElement('li');
     li.innerHTML = "McGill Email:".bold() + "   " + data['student']['email'];
     student_ul.appendChild(li);
+
     li = document.createElement('li');
-    li.innerHTML = "GPA:".bold() + "   " + data['student']['gpa'];
+    li.innerHTML = "TOEFL listening:".bold() + "   " + data['student']['tlisten'];
     student_ul.appendChild(li);
     li = document.createElement('li');
-    li.innerHTML = "GRE:".bold() + "   " + data['student']['gre'];
+    li.innerHTML = "TOEFL reading:".bold() + "   " + data['student']['tread'];
     student_ul.appendChild(li);
+    li = document.createElement('li');
+    li.innerHTML = "TOEFL speaking:".bold() + "   " + data['student']['tspeak'];
+    student_ul.appendChild(li);
+    li = document.createElement('li');
+    li.innerHTML = "TOEFL writing:".bold() + "   " + data['student']['twrite'];
+    student_ul.appendChild(li);
+
+    li = document.createElement('li');
+    li.innerHTML = "GRE verbal:".bold() + "   " + data['student']['gverbal'];
+    student_ul.appendChild(li);
+    li = document.createElement('li');
+    li.innerHTML = "GRE quantitative:".bold() + "   " + data['student']['gquant'];
+    student_ul.appendChild(li);
+    li = document.createElement('li');
+    li.innerHTML = "GRE analytical writing:".bold() + "   " + data['student']['gwrite'];
+    student_ul.appendChild(li);
+
     studentDiv.appendChild(student_ul);
     mainPage.appendChild(studentDiv);
 
@@ -250,12 +312,22 @@ function initListeners(){
     };
 
     //student's general information
-    var newNameInput = document.getElementsByClassName("new-student-name")[0];
-    var newMidInput = document.getElementsByClassName("new-student-mid")[0];
-    var newEmailInput = document.getElementsByClassName("new-student-email")[0];
-    var newGpaInput = document.getElementsByClassName("new-student-gpa")[0];
-    var newGreInput = document.getElementsByClassName("new-student-gre")[0];
-   
+    var firstNameInput = document.getElementsByClassName("student-first-name")[0];
+    var lastNameInput = document.getElementsByClassName("student-last-name")[0];
+    var midInput = document.getElementsByClassName("new-student-mid")[0];
+    var emailInput = document.getElementsByClassName("new-student-email")[0];
+
+    //toefl scores
+    var tlisInput = document.getElementsByClassName("toefl-listening")[0];
+    var treadInput = document.getElementsByClassName("toefl-reading")[0];
+    var tspeakInput = document.getElementsByClassName("toefl-speaking")[0];
+    var twriteInput = document.getElementsByClassName("toefl-writing")[0];
+
+    //gre scores
+    var gverbalInput = document.getElementsByClassName("gre-verbal")[0];
+    var gquantInput = document.getElementsByClassName("gre-quant")[0];
+    var gwriteInput = document.getElementsByClassName("gre-writing")[0];
+
     var transTable = document.getElementsByClassName("trans-table")[0];
     var addrowButton = document.getElementsByClassName("addrow")[0];
     
@@ -268,13 +340,14 @@ function initListeners(){
     reviewButton.addEventListener(
         "click",
         function(evt){
-            if(checkValidity(newNameInput, newMidInput, newEmailInput,newGpaInput, newGreInput)){
+            if(checkStudentInfo(firstNameInput, lastNameInput, midInput, 
+                emailInput, tlisInput, treadInput, tspeakInput, twriteInput, gverbalInput, gquantInput, gwriteInput)){
                 // parse student general information 
                 var data = {}
                 var sid = generateRandomId();
-                data["student"] = getStudentJsonRequest(sid, newNameInput.value,
-                    newMidInput.value, newEmailInput.value, 
-                    newGpaInput.value, newGreInput.value);
+                data["student"] = getStudentJsonRequest(sid, firstNameInput.value, lastNameInput.value, 
+                    midInput.value, emailInput.value, tlisInput.value, treadInput.value, tspeakInput.value, twriteInput.value,
+                    gverbalInput.value, gquantInput.value, gwriteInput.value);
                 mainPage = document.getElementsByClassName("main")[0];
                 // parse transcript tables
                 var all_trans = [];
@@ -283,18 +356,27 @@ function initListeners(){
                     var trans_obj = {};
                     var tid = generateRandomId();
                     var trans = document.getElementsByClassName("transcript")[i];
+                    var degree = trans.getElementsByClassName("degree-select")[0];
                     var newUni = trans.getElementsByClassName("uni")[0];
                     var newCountry = trans.getElementsByClassName("country")[0];
-                    trans_obj["trans_info"] = getTransJsonRequest(sid, tid, newUni.value, newCountry.value);
+                    if(!checkTransInfo(trans, newUni, newCountry)){
+                        return;
+                    }
+                    trans_obj["trans_info"] = getTransJsonRequest(sid, tid, degree.value, newUni.value, newCountry.value);
                     var numRow = trans.getElementsByClassName("ccode-entry").length;
                     var entries = [];
+                    trans.getElementsByClassName("invalid-table")[0].innerHTML = "";
                     for(var j=0; j<numRow; j++){
                         var ccode = trans.getElementsByClassName("ccode-entry")[j];
                         var cname = trans.getElementsByClassName("cname-entry")[j];
                         var credit = trans.getElementsByClassName("credit-entry")[j];
                         var grade = trans.getElementsByClassName("grade-entry")[j];
                         var eid = generateRandomId();
-                        if(ccode.value === "") continue;
+                        if(!checkTable(ccode, cname, credit, grade)){
+                            trans.getElementsByClassName("invalid-table")[0].innerHTML = "Please fill in the table correctly.";
+                            return;
+                        }
+                        if(ccode.value === "" || cname.value === "" || credit.value === "" || grade.value === "") continue;
                         entries.push(getEntryJsonRequest(eid, tid, ccode.value, cname.value, credit.value, grade.value));
                     }
                     trans_obj["trans_table"] = entries;
@@ -333,6 +415,7 @@ function initListeners(){
                          //   mainPage.appendChild(storedPage.removeChild(storedPage.firstChild));
                         //}
                         mainPage.innerHTML = storedPage;
+                        initListeners();
                     }
                 );
                 buttonsDiv.appendChild(back);
@@ -352,13 +435,10 @@ function initListeners(){
                         })
                         .then(function(response){ return response.text()})
                         .then(function (text) {
-                            newNameInput.value = "";
-                            newMidInput.value = "";
-                            newEmailInput.value = "";
-                            newGpaInput.value = "";
-                            newGreInput.value = "";
-                            newTransUni = "";
-                            newTransCountry = "";
+                            var inputs = mainPage.getElementsByTagName('input');
+                            for (i = 0; i < inputs.length; ++i) {
+                                inputs[i].value = "";
+                            }
                             gpaCalApp.innerHTML = text;
                         //    initListeners()
                         })

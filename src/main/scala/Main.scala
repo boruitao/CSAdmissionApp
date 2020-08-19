@@ -4,7 +4,9 @@ import io.getquill.{SnakeCase, SqliteJdbcContext}
 import scalatags.Text.all.{input, _}
 import scalatags.Text.tags2
 import upickle.default._
-//import org.scalajs.sbtplugin.ScalaJSPlugin.AutoImport._
+// import scala.scalajs.js.annotation.JSExport
+// import org.scalajs.dom
+// import org.scalajs.dom.html
 
 object TodoServer extends cask.MainRoutes{
   val tmpDb = java.nio.file.Files.createTempDirectory("gpa-calculator-cask-sqlite")
@@ -29,9 +31,9 @@ object TodoServer extends cask.MainRoutes{
     }
   }
 
-  case class Student(sid: String, name: String, mid: String, email: String, gpa: Float, gre: Int)
+  case class Student(sid: String, firstname: String, lastname: String, mid: String, email: String, tlisten: Int, tread: Int, tspeak: Int, twrite: Int, gverbal: Int, gquant: Int, gwrite: Int)
 
-  case class Transcript(tid: String, sid: String, university: String, country: String)
+  case class Transcript(tid: String, sid: String, degree: String, university: String, country: String)
   
   case class Entry(eid: String, tid: String, coursecode: String, coursename: String, credit: Int, grade: String)
   
@@ -44,11 +46,17 @@ object TodoServer extends cask.MainRoutes{
   ctx.executeAction(
     """CREATE TABLE student (
   sid VARCHAR(10) PRIMARY KEY,
-  name TEXT NOT NULL,
+  firstname TEXT NOT NULL,
+  lastname TEXT NOT NULL,
   mid VARCHAR(15) NOT NULL,
   email TEXT NOT NULL,
-  gpa FLOAT(2) NOT NULL,
-  gre INTEGER
+  tlisten INTEGER,
+  tread INTEGER,
+  tspeak INTEGER,
+  twrite INTEGER,
+  gverbal INTEGER,
+  gquant INTEGER,
+  gwrite INTEGER
 );
 """.stripMargin
   )
@@ -56,8 +64,9 @@ object TodoServer extends cask.MainRoutes{
     """CREATE TABLE transcript (
   tid VARCHAR(10) PRIMARY KEY,
   sid VARCHAR(10) NOT NULL,
-  university VARCHAR(50) NOT NULL,
+  degree VARCHAR(50) NOT NULL,
   country VARCHAR(50) NOT NULL,
+  university VARCHAR(50) NOT NULL,
   FOREIGN KEY(sid) REFERENCES student(sid)
 );
 """.stripMargin
@@ -86,17 +95,11 @@ object TodoServer extends cask.MainRoutes{
     println("You trans: %s", data("transcripts"))
     val student = upickle.default.read[Student](data("student"))
     val sid = student.sid
-    val mid = student.mid
-    val email = student.email
-    val name = student.name
-    val gpa = student.gpa
-    val gre = student.gre
-
     run(
       query[Student]
-        //.insert(_.sid -> lift(parsed.sid), _.email -> lift(parsed.email), _.name -> lift(parsd.name))
-        .insert(_.sid -> lift(sid), _.mid -> lift(mid), _.email -> lift(email), _.name -> lift(name), _.gpa -> lift(gpa), _.gre -> lift(gre))
-       // .returningGenerated(_.sid)
+        .insert(_.sid -> lift(student.sid), _.mid -> lift(student.mid), _.email -> lift(student.email), _.firstname -> lift(student.firstname),
+           _.lastname -> lift(student.lastname),_.tlisten -> lift(student.tlisten),_.tread -> lift(student.tread), _.tspeak -> lift(student.tspeak),
+           _.twrite -> lift(student.twrite), _.gverbal -> lift(student.gverbal),  _.gquant -> lift(student.gquant), _.gwrite -> lift(student.gwrite))
     )
     
 //    val transcriptlll = upickle.default.read[Transcript](data("transcripts")(0)("trans_info"))
@@ -104,18 +107,16 @@ object TodoServer extends cask.MainRoutes{
     val numTrans = data("transcripts").arr.length
     println("number of trans: %d", numTrans)
     for(i <- 0 to numTrans-1){
-        val transcript = upickle.default.read[Transcript](data("transcripts")(0)("trans_info"))
-        val uni = transcript.university
-        val country = transcript.country
-        val tid = transcript.tid
+        val trans = upickle.default.read[Transcript](data("transcripts")(i)("trans_info"))
+        val tid = trans.tid
         run(
           query[Transcript]
-            .insert(_.tid -> lift(tid), _.sid -> lift(sid), _.university -> lift(uni), _.country -> lift(country))
+            .insert(_.tid -> lift(tid), _.sid -> lift(sid), _.degree -> lift(trans.degree), _.university -> lift(trans.university), _.country -> lift(trans.country))
         )
 
        val numEntries = data("transcripts")(i)("trans_table").arr.length
        for(j <- 0 to numEntries-1){
-           val entry = upickle.default.read[Entry](data("transcripts")(0)("trans_table")(0))
+           val entry = upickle.default.read[Entry](data("transcripts")(i)("trans_table")(j))
            val eid = entry.eid
            val coursecode = entry.coursecode
            val coursename = entry.coursename
@@ -123,23 +124,12 @@ object TodoServer extends cask.MainRoutes{
            val credit = entry.credit
            run(
             query[Entry]
-              .insert(_.eid -> lift(eid), _.tid -> lift(tid), _.coursecode -> lift(coursecode), _.coursename -> lift(coursename),_.grade -> lift(grade),_.credit -> lift(credit))
+              .insert(_.eid -> lift(eid), _.tid -> lift(tid), _.coursecode -> lift(coursecode),
+               _.coursename -> lift(coursename),_.grade -> lift(grade),_.credit -> lift(credit))
           )
        }
-   }
-    // val transcript = upickle.default.read[Transcript](data(0)("transcript"))
-    
-    
-    // val tid = transcript.tid
-    // val uni = transcript.university
-    // val country = transcript.country
-
-    println("You typed: %s", sid)
-    println("You typed: %s", email)
-    println("You typed: %s", name)
-    println("You typed: %s", gpa)
-    println("You typed: %s", gre)
-    
+    }
+    println("Rendering the success page")
     renderSuccessMessage(state).render
   }
 
@@ -147,19 +137,30 @@ object TodoServer extends cask.MainRoutes{
     frag(
       div(cls := "single-trans",
         div(cls := "transcript-info-header",
-          h3("Student's Undergrad Transcript")
+          h3("Student's Transcript")
         ),
         div(cls
           := "transcript",
           div(cls := "trans-info-div",
+            div(cls := "degree-div", 
+              label("Degree", span(cls := "red-star", "*")),
+              select(cls := "degree-select",
+                option(value := "B.Sc.", "B.Sc."),
+                option(value := "B.Eng.", "B.Eng."),
+                option(value := "M.Sc.", "M.Sc."),
+                option(value := "M.Eng.", "M.Eng.")
+              )
+            ),
             div(cls := "uni-div", 
-              label("University"),
+              label("University", span(cls := "red-star", "*")),
               input(cls := "uni", `type` := "text", autofocus := "")
             ),
+            p(cls := "invalid-uni"),
             div(cls := "country-div", 
-              label("Country"),
+              label("Country", span(cls := "red-star", "*")),
               input(cls := "country", `type` := "text", autofocus := "")
-            )
+            ),
+            p(cls := "invalid-country")
           ),
           renderTable()
         )
@@ -213,6 +214,7 @@ object TodoServer extends cask.MainRoutes{
               )
             )
           ),
+          p(cls := "invalid-table"),
           div(cls := "add-row-button-div",
             button(cls := "addrow","add 3 more rows")
           ),
@@ -266,30 +268,70 @@ object TodoServer extends cask.MainRoutes{
         div(cls := "general-info-header",
          h3("Student's General Information")
         ),
-        div(cls := "general-info", 
+        div(id := "general-info", 
           div(cls := "name-div",
-            label("Full Name"),
-            input(cls := "new-student-name", placeholder := "What is your name?", `type` := "text", autofocus := ""),
+            div(cls := "first-name-div",
+              label("First Name", span(cls := "red-star", "*")),
+              input(cls := "student-first-name", `type` := "text", autofocus := ""),
+            ),
+            div(cls := "last-name-div",
+              label("Last Name", span(cls := "red-star", "*")),
+              input(cls := "student-last-name", `type` := "text", autofocus := ""),
+            ),
             p(cls := "invalid-name")
           ),
           div(cls := "mid-div",
-            label("McGill ID"),
+            label("UApply/McGill ID", span(cls := "red-star", "*")),
             input(cls := "new-student-mid", placeholder := "What is your McGill id?", `type` := "text", autofocus := ""),
             p(cls := "invalid-mid")
           ),
           div(cls := "email-div",
-            label("McGill Email"),
+            label("McGill Email", span(cls := "red-star", "*")),
             input(cls := "new-student-email", placeholder := "What is your McGill email?", `type` := "text", autofocus := ""),
             p(cls := "invalid-email")
           ),
-          div(cls := "gpa-div",
-            label("Student's GPA"),
-            input(cls := "new-student-gpa", placeholder := "What is your undergrad GPA?", `type` := "text", autofocus := ""),
-            p(cls := "invalid-gpa")
+          div(cls := "toefl-div",
+            label("Student's TOEFL Score"),
+            table(cls := "toefl-table",
+              thead(cls := "toefl-table-head", 
+                tr(cls := "table-head-row",
+                  th("listening"),
+                  th("reading"),
+                  th("speaking"),
+                  th("writing")
+                 // th("total")
+                )
+              ),
+              tbody(cls := "toefl-table-body",
+                tr(cls := "table-head-row",
+                  td(input(cls := "toefl-listening", `type` := "text", autofocus := "")),
+                  td(input(cls := "toefl-reading", `type` := "text", autofocus := "")),
+                  td(input(cls := "toefl-speaking", `type` := "text", autofocus := "")),
+                  td(input(cls := "toefl-writing", `type` := "text", autofocus := "")),
+                //  td(p(cls := "toefl-total", getToeflTotal()))
+                )
+              )
+            ),
+            p(cls := "invalid-toefl")
           ),
           div(cls := "gre-div",
             label("Student's GRE Score"),
-            input(cls := "new-student-gre", placeholder := "What is your gre score?", `type` := "text", autofocus := ""),
+            table(cls := "gre-table",
+              thead(cls := "gre-table-head", 
+                tr(cls := "table-head-row",
+                  th("verbal"),
+                  th("quantitative"),
+                  th("analytical writing"),
+                )
+              ),
+              tbody(cls := "gre-table-body",
+                tr(cls := "table-head-row",
+                  td(input(cls := "gre-verbal", `type` := "text", autofocus := "")),
+                  td(input(cls := "gre-quant", `type` := "text", autofocus := "")),
+                  td(input(cls := "gre-writing", `type` := "text", autofocus := "")),
+                )
+              )
+            ),          
             p(cls := "invalid-gre")
           )
         ),
