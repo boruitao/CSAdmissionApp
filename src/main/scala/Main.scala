@@ -3,6 +3,9 @@ import com.typesafe.config.ConfigFactory
 import io.getquill.{SnakeCase, SqliteJdbcContext}
 import scalatags.Text.all.{input, _}
 import scalatags.Text.tags2
+import java.io.File 
+import java.util.Arrays
+import scala.io.Source
 import upickle.default._
 // import scala.scalajs.js.annotation.JSExport
 // import org.scalajs.dom
@@ -31,11 +34,12 @@ object TodoServer extends cask.MainRoutes{
     }
   }
 
-  case class Student(sid: String, firstname: String, lastname: String, mid: String, email: String, tlisten: Int, tread: Int, tspeak: Int, twrite: Int, gverbal: Int, gquant: Int, gwrite: Int)
+  case class Student(sid: Int, firstname: String, lastname: String, mid: String, email: String, 
+    tlisten: Int, tread: Int, tspeak: Int, twrite: Int, gverbal: Int, gquant: Int, gwrite: Float)
 
-  case class Transcript(tid: String, sid: String, degree: String, university: String, country: String)
+  case class Transcript(tid: Int, sid: Int, degree: String, university: String, country: String)
   
-  case class Entry(eid: String, tid: String, coursecode: String, coursename: String, credit: Int, grade: String)
+  case class Entry(eid: Int, tid: Int, coursecode: String, coursename: String, credit: Float, grade: Float)
   
   implicit val studentRW = upickle.default.macroRW[Student]
 
@@ -45,7 +49,7 @@ object TodoServer extends cask.MainRoutes{
 
   ctx.executeAction(
     """CREATE TABLE student (
-  sid VARCHAR(10) PRIMARY KEY,
+  sid INTEGER PRIMARY KEY AUTOINCREMENT,
   firstname TEXT NOT NULL,
   lastname TEXT NOT NULL,
   mid VARCHAR(15) NOT NULL,
@@ -56,14 +60,14 @@ object TodoServer extends cask.MainRoutes{
   twrite INTEGER,
   gverbal INTEGER,
   gquant INTEGER,
-  gwrite INTEGER
+  gwrite FLOAT(10, 2)
 );
 """.stripMargin
   )
   ctx.executeAction(
     """CREATE TABLE transcript (
-  tid VARCHAR(10) PRIMARY KEY,
-  sid VARCHAR(10) NOT NULL,
+  tid INTEGER PRIMARY KEY AUTOINCREMENT,
+  sid INTEGER NOT NULL,
   degree VARCHAR(50) NOT NULL,
   country VARCHAR(50) NOT NULL,
   university VARCHAR(50) NOT NULL,
@@ -73,12 +77,12 @@ object TodoServer extends cask.MainRoutes{
   )
   ctx.executeAction(
     """CREATE TABLE entry (
-  eid VARCHAR(10) PRIMARY KEY,
-  tid VARCHAR(10) NOT NULL,
+  eid INTEGER PRIMARY KEY AUTOINCREMENT,
+  tid INTEGER NOT NULL,
   coursecode VARCHAR(50) NOT NULL,
   coursename TEXT NOT NULL,
-  credit INTEGER NOT NULL, 
-  grade VARCHAR(10) NOT NULL,
+  credit FLOAT(10, 2) NOT NULL, 
+  grade FLOAT(10, 2) NOT NULL,
   FOREIGN KEY(tid) REFERENCES transcript(tid)
 );
 """.stripMargin
@@ -94,13 +98,20 @@ object TodoServer extends cask.MainRoutes{
     println("You student: %s", data("student"))
     println("You trans: %s", data("transcripts"))
     val student = upickle.default.read[Student](data("student"))
-    val sid = student.sid
-    run(
+    val studentq = quote {
       query[Student]
-        .insert(_.sid -> lift(student.sid), _.mid -> lift(student.mid), _.email -> lift(student.email), _.firstname -> lift(student.firstname),
+        .insert(_.mid -> lift(student.mid), _.email -> lift(student.email), _.firstname -> lift(student.firstname),
            _.lastname -> lift(student.lastname),_.tlisten -> lift(student.tlisten),_.tread -> lift(student.tread), _.tspeak -> lift(student.tspeak),
            _.twrite -> lift(student.twrite), _.gverbal -> lift(student.gverbal),  _.gquant -> lift(student.gquant), _.gwrite -> lift(student.gwrite))
-    )
+        .returningGenerated(_.sid)
+    }
+    val sid = ctx.run(studentq)
+    // run(
+    //   query[Student]
+    //     .insert(_.sid -> lift(student.sid), _.mid -> lift(student.mid), _.email -> lift(student.email), _.firstname -> lift(student.firstname),
+    //        _.lastname -> lift(student.lastname),_.tlisten -> lift(student.tlisten),_.tread -> lift(student.tread), _.tspeak -> lift(student.tspeak),
+    //        _.twrite -> lift(student.twrite), _.gverbal -> lift(student.gverbal),  _.gquant -> lift(student.gquant), _.gwrite -> lift(student.gwrite))
+    // )
     
 //    val transcriptlll = upickle.default.read[Transcript](data("transcripts")(0)("trans_info"))
 
@@ -108,29 +119,50 @@ object TodoServer extends cask.MainRoutes{
     println("number of trans: %d", numTrans)
     for(i <- 0 to numTrans-1){
         val trans = upickle.default.read[Transcript](data("transcripts")(i)("trans_info"))
-        val tid = trans.tid
-        run(
+        val transq = quote {
           query[Transcript]
-            .insert(_.tid -> lift(tid), _.sid -> lift(sid), _.degree -> lift(trans.degree), _.university -> lift(trans.university), _.country -> lift(trans.country))
-        )
+            .insert(_.sid -> lift(sid), _.degree -> lift(trans.degree),
+                _.university -> lift(trans.university), _.country -> lift(trans.country))
+            .returningGenerated(_.tid)
+        }
+        val tid = ctx.run(transq)
+        // val tid = trans.tid
+        // run(
+        //   query[Transcript]
+        //     .insert(_.tid -> lift(tid), _.sid -> lift(sid), _.degree -> lift(trans.degree),
+        //         _.university -> lift(trans.university), _.country -> lift(trans.country))
+        // )
 
        val numEntries = data("transcripts")(i)("trans_table").arr.length
        for(j <- 0 to numEntries-1){
            val entry = upickle.default.read[Entry](data("transcripts")(i)("trans_table")(j))
-           val eid = entry.eid
            val coursecode = entry.coursecode
            val coursename = entry.coursename
            val grade = entry.grade
            val credit = entry.credit
            run(
             query[Entry]
-              .insert(_.eid -> lift(eid), _.tid -> lift(tid), _.coursecode -> lift(coursecode),
+              .insert(_.tid -> lift(tid), _.coursecode -> lift(coursecode),
                _.coursename -> lift(coursename),_.grade -> lift(grade),_.credit -> lift(credit))
+               .returningGenerated(_.eid)
           )
        }
     }
     println("Rendering the success page")
     renderSuccessMessage(state).render
+  }
+
+  def getListOfFiles(f: File):List[File] = {
+    if (f.exists && f.isDirectory) {
+        f.listFiles.filter(_.isFile).toList
+    } else {
+        List[File]()
+    }
+  }
+
+  def getHTMLContent(f: String):String ={
+    val lines = Source.fromFile(f).getLines.toArray
+    lines.mkString("")
   }
 
   def renderTranscript() = {
@@ -158,9 +190,23 @@ object TodoServer extends cask.MainRoutes{
             p(cls := "invalid-uni"),
             div(cls := "country-div", 
               label("Country", span(cls := "red-star", "*")),
-              input(cls := "country", `type` := "text", autofocus := "")
+              select(cls := "country",
+                onchange := "this.parentElement.parentElement.getElementsByClassName(\"gpa-scale-table-div\")[0].innerHTML=this.options[this.selectedIndex].getAttribute(\"htmlcontent\");this.parentElement.parentElement.getElementsByClassName(\"gpa-scale-label\")[0].innerHTML = \"Please use the following rules to convert your grade into 4.0 scale\"",
+                option(value := "-", "-"),
+                for(countryname <- getListOfFiles(new File("./resources/gpacal/html")).sortWith(_.getName()<_.getName())) yield option(
+                  value := countryname.getName().substring(0, countryname.getName().indexOf(".html")).toLowerCase(),
+                  attr("htmlcontent") := getHTMLContent("./resources/gpacal/html/"+countryname.getName()),
+                  countryname.getName().substring(0, countryname.getName().indexOf(".html")).toLowerCase()
+                )
+              )
+              //input(cls := "country", `type` := "text", autofocus := "")
             ),
-            p(cls := "invalid-country")
+            p(cls := "invalid-country"),
+            div(cls := "gpa-scale",
+              label(cls := "gpa-scale-label"),
+              div(cls := "gpa-scale-table-div"
+              )
+            )
           ),
           renderTable()
         )
@@ -178,7 +224,7 @@ object TodoServer extends cask.MainRoutes{
                 th("Course Code"),
                 th(cls := "cname-th", "Course Name"),
                 th("Credit"),
-                th("Grade")
+                th("Grade (4.0 scale)")
               )
             ),
             tbody(cls := "trans-table-body",
@@ -186,7 +232,7 @@ object TodoServer extends cask.MainRoutes{
                 td(input(cls := "ccode-entry", `type` := "text", placeholder :="Ex:COMP250")),
                 td(input(cls := "cname-entry", `type` := "text", placeholder :="Ex:Intro. to Computer Science")),
                 td(input(cls := "credit-entry", `type` := "text", placeholder :="Ex:3")),
-                td(input(cls := "grade-entry", `type` := "text", placeholder :="Ex:A"))
+                td(input(cls := "grade-entry", `type` := "text", placeholder :="Ex:4"))
               ),
               tr(cls := "table-head-row",
                 td(input(cls := "ccode-entry", `type` := "text")),

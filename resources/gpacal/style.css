@@ -140,14 +140,28 @@ p{
     margin-bottom: 20px;
 }
 
-.trans-table-div{
+.trans-table-div, .gpa-scale{
     margin-top: 30px;
 }
 
-.trans-table, .toefl-table, .gre-table{
+.trans-table, .toefl-table, .gre-table, .no-zebra{
     border-collapse: collapse;
     table-layout: auto;
     width: 100%;
+}
+
+.no-zebra{
+    font-size:14px;
+}
+
+.no-zebra p{
+    color: black;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.gpa-scale-table-div{
+    margin-top: 4px;
 }
 
 .toefl-table, .gre-table{
@@ -170,7 +184,7 @@ th{
     background-color: #6e726e;
     padding-top: 10px;
     padding-bottom: 10px;
-    padding-left: 8px;
+    padding-left: 6px;
     text-align: left;
     font-size: 14px;
     font-weight: 100;
@@ -178,7 +192,7 @@ th{
 }
 
 .cname-th{
-    width: 50%;
+    width: 45%;
 }
 
 .ccode-entry, .cname-entry, .credit-entry, .grade-entry{

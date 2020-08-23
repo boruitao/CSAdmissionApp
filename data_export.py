@@ -12,20 +12,20 @@ def create_connection(db_file):
     return conn
 
 
-def select_all_students(conn):
+def select_all(conn, entity):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM student")
+    cur.execute("SELECT * FROM "+ entity)
 
     rows = cur.fetchall()
 
     for row in rows:
         print(row)
 
-def write_all_students_tocsv(conn):
+def write_all_tocsv(conn, entity, output):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM student")
+    cur.execute("SELECT * FROM " + entity)
 
-    with open("out.csv", "w", newline='') as csv_file:
+    with open(output, "w", newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow([i[0] for i in cur.description])
         csv_writer.writerows(cur)
@@ -39,7 +39,7 @@ def select_task_by_priority(conn, priority):
     :return:
     """
     cur = conn.cursor()
-    cur.execute("SELECT * FROM student WHERE priority=?", (priority,))
+    cur.execute("SELECT * FROM transcript WHERE priority=?", (priority,))
 
     rows = cur.fetchall()
 
@@ -48,16 +48,28 @@ def select_task_by_priority(conn, priority):
 
 
 def main():
-    database = r"/var/folders/3s/m78ym4cx27jd8d5hw2z25fxh0000gn/T/gpa-calculator-cask-sqlite5650091692146303576/file.db"
+    database = r"/var/folders/3s/m78ym4cx27jd8d5hw2z25fxh0000gn/T/gpa-calculator-cask-sqlite3227867811220165632/file.db"
 
     # create a database connection
     conn = create_connection(database)
     with conn:
         print("Query all students")
-        select_all_students(conn)
+        select_all(conn, "student")
 
         print("write to csv")
-        write_all_students_tocsv(conn)
+        write_all_tocsv(conn, "student", "student.csv")
+
+        print("Query all transcripts")
+        select_all(conn, "transcript")
+
+        print("write to csv")
+        write_all_tocsv(conn, "transcript", "transcript.csv")
+
+        print("Query all entries")
+        select_all(conn, "entry")
+
+        print("write to csv")
+        write_all_tocsv(conn, "entry", "entry.csv")
 
 
 if __name__ == '__main__':
