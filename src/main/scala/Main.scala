@@ -7,9 +7,6 @@ import java.io.File
 import java.util.Arrays
 import scala.io.Source
 import upickle.default._
-// import scala.scalajs.js.annotation.JSExport
-// import org.scalajs.dom
-// import org.scalajs.dom.html
 
 object TodoServer extends cask.MainRoutes{
   val tmpDb = java.nio.file.Files.createTempDirectory("gpa-calculator-cask-sqlite")
@@ -34,8 +31,9 @@ object TodoServer extends cask.MainRoutes{
     }
   }
 
-  case class Student(sid: Int, firstname: String, lastname: String, mid: String, email: String, 
-    tlisten: Int, tread: Int, tspeak: Int, twrite: Int, gverbal: Int, gquant: Int, gwrite: Float)
+  // case class Student(sid: Int, firstname: String, lastname: String, mid: String, email: String, 
+  //   tlisten: Int, tread: Int, tspeak: Int, twrite: Int, gverbal: Int, gquant: Int, gwrite: Float)
+  case class Student(sid: Int, firstname: String, lastname: String, mid: String, email: String, creationtime: Float)
 
   case class Transcript(tid: Int, sid: Int, degree: String, university: String, country: String)
   
@@ -47,23 +45,36 @@ object TodoServer extends cask.MainRoutes{
 
   implicit val entryRW = upickle.default.macroRW[Entry]
 
+//   insert toefl and gre score
+//   ctx.executeAction(
+//     """CREATE TABLE student (
+//   sid INTEGER PRIMARY KEY AUTOINCREMENT,
+//   firstname TEXT NOT NULL,
+//   lastname TEXT NOT NULL,
+//   mid VARCHAR(15) NOT NULL,
+//   email TEXT NOT NULL,
+//   tlisten INTEGER,
+//   tread INTEGER,
+//   tspeak INTEGER,
+//   twrite INTEGER,
+//   gverbal INTEGER,
+//   gquant INTEGER,
+//   gwrite FLOAT(10, 2)
+// );
+// """.stripMargin
+//   )
   ctx.executeAction(
-    """CREATE TABLE student (
-  sid INTEGER PRIMARY KEY AUTOINCREMENT,
-  firstname TEXT NOT NULL,
-  lastname TEXT NOT NULL,
-  mid VARCHAR(15) NOT NULL,
-  email TEXT NOT NULL,
-  tlisten INTEGER,
-  tread INTEGER,
-  tspeak INTEGER,
-  twrite INTEGER,
-  gverbal INTEGER,
-  gquant INTEGER,
-  gwrite FLOAT(10, 2)
-);
-""".stripMargin
+      """CREATE TABLE student (
+    sid INTEGER PRIMARY KEY AUTOINCREMENT,
+    firstname TEXT NOT NULL,
+    lastname TEXT NOT NULL,
+    mid VARCHAR(15) NOT NULL,
+    email TEXT NOT NULL,
+    creationtime FLOAT(20) NOT NULL
+  );
+  """.stripMargin
   )
+
   ctx.executeAction(
     """CREATE TABLE transcript (
   tid INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -98,23 +109,20 @@ object TodoServer extends cask.MainRoutes{
     println("You student: %s", data("student"))
     println("You trans: %s", data("transcripts"))
     val student = upickle.default.read[Student](data("student"))
+    // val studentq = quote {
+    //   query[Student]
+    //     .insert(_.mid -> lift(student.mid), _.email -> lift(student.email), _.firstname -> lift(student.firstname),
+    //        _.lastname -> lift(student.lastname),_.tlisten -> lift(student.tlisten),_.tread -> lift(student.tread), _.tspeak -> lift(student.tspeak),
+    //        _.twrite -> lift(student.twrite), _.gverbal -> lift(student.gverbal),  _.gquant -> lift(student.gquant), _.gwrite -> lift(student.gwrite))
+    //     .returningGenerated(_.sid)
+    // }
     val studentq = quote {
       query[Student]
         .insert(_.mid -> lift(student.mid), _.email -> lift(student.email), _.firstname -> lift(student.firstname),
-           _.lastname -> lift(student.lastname),_.tlisten -> lift(student.tlisten),_.tread -> lift(student.tread), _.tspeak -> lift(student.tspeak),
-           _.twrite -> lift(student.twrite), _.gverbal -> lift(student.gverbal),  _.gquant -> lift(student.gquant), _.gwrite -> lift(student.gwrite))
+           _.lastname -> lift(student.lastname), _.creationtime -> lift(student.creationtime))
         .returningGenerated(_.sid)
     }
     val sid = ctx.run(studentq)
-    // run(
-    //   query[Student]
-    //     .insert(_.sid -> lift(student.sid), _.mid -> lift(student.mid), _.email -> lift(student.email), _.firstname -> lift(student.firstname),
-    //        _.lastname -> lift(student.lastname),_.tlisten -> lift(student.tlisten),_.tread -> lift(student.tread), _.tspeak -> lift(student.tspeak),
-    //        _.twrite -> lift(student.twrite), _.gverbal -> lift(student.gverbal),  _.gquant -> lift(student.gquant), _.gwrite -> lift(student.gwrite))
-    // )
-    
-//    val transcriptlll = upickle.default.read[Transcript](data("transcripts")(0)("trans_info"))
-
     val numTrans = data("transcripts").arr.length
     println("number of trans: %d", numTrans)
     for(i <- 0 to numTrans-1){
@@ -126,12 +134,6 @@ object TodoServer extends cask.MainRoutes{
             .returningGenerated(_.tid)
         }
         val tid = ctx.run(transq)
-        // val tid = trans.tid
-        // run(
-        //   query[Transcript]
-        //     .insert(_.tid -> lift(tid), _.sid -> lift(sid), _.degree -> lift(trans.degree),
-        //         _.university -> lift(trans.university), _.country -> lift(trans.country))
-        // )
 
        val numEntries = data("transcripts")(i)("trans_table").arr.length
        for(j <- 0 to numEntries-1){
@@ -191,7 +193,6 @@ object TodoServer extends cask.MainRoutes{
             div(cls := "country-div", 
               label("Country", span(cls := "red-star", "*")),
               select(cls := "country",
-                onchange := "this.parentElement.parentElement.getElementsByClassName(\"gpa-scale-table-div\")[0].innerHTML=this.options[this.selectedIndex].getAttribute(\"htmlcontent\");this.parentElement.parentElement.getElementsByClassName(\"gpa-scale-label\")[0].innerHTML = \"Please use the following rules to convert your grade into 4.0 scale\"",
                 option(value := "-", "-"),
                 for(countryname <- getListOfFiles(new File("./resources/gpacal/html")).sortWith(_.getName()<_.getName())) yield option(
                   value := countryname.getName().substring(0, countryname.getName().indexOf(".html")).toLowerCase(),
@@ -332,54 +333,54 @@ object TodoServer extends cask.MainRoutes{
             p(cls := "invalid-mid")
           ),
           div(cls := "email-div",
-            label("McGill Email", span(cls := "red-star", "*")),
-            input(cls := "new-student-email", placeholder := "What is your McGill email?", `type` := "text", autofocus := ""),
+            label("Email", span(cls := "red-star", "*")),
+            input(cls := "new-student-email", placeholder := "What is your email?", `type` := "text", autofocus := ""),
             p(cls := "invalid-email")
-          ),
-          div(cls := "toefl-div",
-            label("Student's TOEFL Score"),
-            table(cls := "toefl-table",
-              thead(cls := "toefl-table-head", 
-                tr(cls := "table-head-row",
-                  th("listening"),
-                  th("reading"),
-                  th("speaking"),
-                  th("writing")
-                 // th("total")
-                )
-              ),
-              tbody(cls := "toefl-table-body",
-                tr(cls := "table-head-row",
-                  td(input(cls := "toefl-listening", `type` := "text", autofocus := "")),
-                  td(input(cls := "toefl-reading", `type` := "text", autofocus := "")),
-                  td(input(cls := "toefl-speaking", `type` := "text", autofocus := "")),
-                  td(input(cls := "toefl-writing", `type` := "text", autofocus := "")),
-                //  td(p(cls := "toefl-total", getToeflTotal()))
-                )
-              )
-            ),
-            p(cls := "invalid-toefl")
-          ),
-          div(cls := "gre-div",
-            label("Student's GRE Score"),
-            table(cls := "gre-table",
-              thead(cls := "gre-table-head", 
-                tr(cls := "table-head-row",
-                  th("verbal"),
-                  th("quantitative"),
-                  th("analytical writing"),
-                )
-              ),
-              tbody(cls := "gre-table-body",
-                tr(cls := "table-head-row",
-                  td(input(cls := "gre-verbal", `type` := "text", autofocus := "")),
-                  td(input(cls := "gre-quant", `type` := "text", autofocus := "")),
-                  td(input(cls := "gre-writing", `type` := "text", autofocus := "")),
-                )
-              )
-            ),          
-            p(cls := "invalid-gre")
           )
+        //   div(cls := "toefl-div",
+        //     label("Student's TOEFL Score"),
+        //     table(cls := "toefl-table",
+        //       thead(cls := "toefl-table-head", 
+        //         tr(cls := "table-head-row",
+        //           th("listening"),
+        //           th("reading"),
+        //           th("speaking"),
+        //           th("writing")
+        //          // th("total")
+        //         )
+        //       ),
+        //       tbody(cls := "toefl-table-body",
+        //         tr(cls := "table-head-row",
+        //           td(input(cls := "toefl-listening", `type` := "text", autofocus := "")),
+        //           td(input(cls := "toefl-reading", `type` := "text", autofocus := "")),
+        //           td(input(cls := "toefl-speaking", `type` := "text", autofocus := "")),
+        //           td(input(cls := "toefl-writing", `type` := "text", autofocus := "")),
+        //         //  td(p(cls := "toefl-total", getToeflTotal()))
+        //         )
+        //       )
+        //     ),
+        //     p(cls := "invalid-toefl")
+        //   ),
+        //   div(cls := "gre-div",
+        //     label("Student's GRE Score"),
+        //     table(cls := "gre-table",
+        //       thead(cls := "gre-table-head", 
+        //         tr(cls := "table-head-row",
+        //           th("verbal"),
+        //           th("quantitative"),
+        //           th("analytical writing"),
+        //         )
+        //       ),
+        //       tbody(cls := "gre-table-body",
+        //         tr(cls := "table-head-row",
+        //           td(input(cls := "gre-verbal", `type` := "text", autofocus := "")),
+        //           td(input(cls := "gre-quant", `type` := "text", autofocus := "")),
+        //           td(input(cls := "gre-writing", `type` := "text", autofocus := "")),
+        //         )
+        //       )
+        //     ),          
+        //     p(cls := "invalid-gre")
+        //   )
         ),
         hr(cls := "red-hr"),
         div(id := "transcripts-div",
@@ -399,49 +400,8 @@ object TodoServer extends cask.MainRoutes{
           button(cls := "review","Review")
         )
       ),
-//      tags2.section(cls := "main",
-//        input(
-//          id := "toggle-all",
-//          cls := "toggle-all",
-//          `type` := "checkbox",
-//          if (run(query[Todo].filter(_.checked).size != 0)) checked else ()
-//        ),
-//        label(`for` := "toggle-all","Mark all as complete"),
-//        ul(cls := "todo-list",
-//          for(todo <- filteredTodos) yield li(
-//            if (todo.checked) cls := "completed" else (),
-//            div(cls := "view",
-//              input(
-//                cls := "toggle",
-//                `type` := "checkbox",
-//                if (todo.checked) checked else (),
-//                data("todo-index") := todo.id
-//              ),
-//              label(todo.text),
-//              button(cls := "destroy", data("todo-index") := todo.id)
-//            ),
-//            input(cls := "edit", value := todo.text)
-//          )
-//        )
-//      ),
-      footer(cls := "footer"
-//        span(cls := "todo-count",
-//          strong(run(query[Todo].filter(!_.checked).size).toInt),
-//          " items left"
-//        ),
-//        ul(cls := "filters",
-//          li(cls := "todo-all",
-//            a(if (state == "all") cls := "selected" else (), "All")
-//          ),
-//          li(cls := "todo-active",
-//            a(if (state == "active") cls := "selected" else (), "Active")
-//          ),
-//          li(cls := "todo-completed",
-//            a(if (state == "completed") cls := "selected" else (), "Completed")
-//          )
-//        ),
-        
-      )
+
+      footer(cls := "footer")
     )
   }
 
@@ -458,15 +418,6 @@ object TodoServer extends cask.MainRoutes{
         ),
         body(
           tags2.section(cls := "gpa-calculator", renderBody("all")),
-//          footer(cls := "info",
-//            p("Double-click to edit a todo"),
-//            p("Created by ",
-//              a(href := "http://todomvc.com","Li Haoyi")
-//            ),
-//            p("Part of ",
-//              a(href := "http://todomvc.com","TodoMVC")
-//            )
-//          ),
           script(src := "/static/app.js")
         )
       )
