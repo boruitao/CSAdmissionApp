@@ -33,17 +33,17 @@ object TodoServer extends cask.MainRoutes{
 
   // case class Student(sid: Int, firstname: String, lastname: String, mid: String, email: String, 
   //   tlisten: Int, tread: Int, tspeak: Int, twrite: Int, gverbal: Int, gquant: Int, gwrite: Float)
-  case class Student(sid: Int, firstname: String, lastname: String, mid: String, email: String, creationtime: Float)
+  case class Student(sid: Int, firstname: String, lastname: String, mid: String, email: String, creationtime: Int)
 
   case class Transcript(tid: Int, sid: Int, degree: String, university: String, country: String)
   
-  case class Entry(eid: Int, tid: Int, coursecode: String, coursename: String, credit: Float, grade: Float)
+  case class Course(eid: Int, tid: Int, coursecode: String, coursename: String, credit: Float, grade: Float)
   
   implicit val studentRW = upickle.default.macroRW[Student]
 
   implicit val transcriptRW = upickle.default.macroRW[Transcript]
 
-  implicit val entryRW = upickle.default.macroRW[Entry]
+  implicit val courseRW = upickle.default.macroRW[Course]
 
 //   insert toefl and gre score
 //   ctx.executeAction(
@@ -70,7 +70,7 @@ object TodoServer extends cask.MainRoutes{
     lastname TEXT NOT NULL,
     mid VARCHAR(15) NOT NULL,
     email TEXT NOT NULL,
-    creationtime FLOAT(20) NOT NULL
+    creationtime INTEGER(11) NOT NULL
   );
   """.stripMargin
   )
@@ -87,7 +87,7 @@ object TodoServer extends cask.MainRoutes{
 """.stripMargin
   )
   ctx.executeAction(
-    """CREATE TABLE entry (
+    """CREATE TABLE course (
   eid INTEGER PRIMARY KEY AUTOINCREMENT,
   tid INTEGER NOT NULL,
   coursecode VARCHAR(50) NOT NULL,
@@ -135,15 +135,15 @@ object TodoServer extends cask.MainRoutes{
         }
         val tid = ctx.run(transq)
 
-       val numEntries = data("transcripts")(i)("trans_table").arr.length
-       for(j <- 0 to numEntries-1){
-           val entry = upickle.default.read[Entry](data("transcripts")(i)("trans_table")(j))
+       val numCourses = data("transcripts")(i)("trans_table").arr.length
+       for(j <- 0 to numCourses-1){
+           val entry = upickle.default.read[Course](data("transcripts")(i)("trans_table")(j))
            val coursecode = entry.coursecode
            val coursename = entry.coursename
            val grade = entry.grade
            val credit = entry.credit
            run(
-            query[Entry]
+            query[Course]
               .insert(_.tid -> lift(tid), _.coursecode -> lift(coursecode),
                _.coursename -> lift(coursename),_.grade -> lift(grade),_.credit -> lift(credit))
                .returningGenerated(_.eid)
