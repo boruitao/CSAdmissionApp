@@ -8,7 +8,7 @@ import java.util.Arrays
 import scala.io.Source
 import upickle.default._
 
-object TodoServer extends cask.MainRoutes{
+object GPACalculatorServer extends cask.MainRoutes{
   val tmpDb = java.nio.file.Files.createTempDirectory("gpa-calculator-cask-sqlite")
 
   object ctx extends SqliteJdbcContext(
