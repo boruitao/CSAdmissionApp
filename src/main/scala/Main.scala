@@ -10,8 +10,8 @@ import upickle.default._
 
 object GPACalculatorServer extends cask.MainRoutes{
   val tmpDb = java.nio.file.Files.createTempDirectory("gpa-calculator-cask-sqlite")
-  override def port = 443
-  override def host = "http://admissions.cs.mcgill.ca/"
+  // override def port = 80
+  // override def host = "admissions.cs.mcgill.ca"
   object ctx extends SqliteJdbcContext(
     SnakeCase,
     ConfigFactory.parseString(
@@ -36,7 +36,7 @@ object GPACalculatorServer extends cask.MainRoutes{
   //   tlisten: Int, tread: Int, tspeak: Int, twrite: Int, gverbal: Int, gquant: Int, gwrite: Float)
   case class Student(sid: Int, firstname: String, lastname: String, mid: String, email: String, creationtime: Int)
 
-  case class Transcript(tid: Int, sid: Int, degree: String, university: String, country: String)
+  case class Transcript(tid: Int, sid: Int, degree: String, gradyear: String, university: String, country: String)
   
   case class Course(eid: Int, tid: Int, coursecode: String, coursename: String, credit: Float, grade: Float)
   
@@ -81,6 +81,7 @@ object GPACalculatorServer extends cask.MainRoutes{
   tid INTEGER PRIMARY KEY AUTOINCREMENT,
   sid INTEGER NOT NULL,
   degree VARCHAR(50) NOT NULL,
+  gradyear INTEGER NOT NULL,
   country VARCHAR(50) NOT NULL,
   university VARCHAR(50) NOT NULL,
   FOREIGN KEY(sid) REFERENCES student(sid)
@@ -130,7 +131,7 @@ object GPACalculatorServer extends cask.MainRoutes{
         val trans = upickle.default.read[Transcript](data("transcripts")(i)("trans_info"))
         val transq = quote {
           query[Transcript]
-            .insert(_.sid -> lift(sid), _.degree -> lift(trans.degree),
+            .insert(_.sid -> lift(sid), _.degree -> lift(trans.degree), _.gradyear -> lift(trans.gradyear),
                 _.university -> lift(trans.university), _.country -> lift(trans.country))
             .returningGenerated(_.tid)
         }
@@ -186,6 +187,11 @@ object GPACalculatorServer extends cask.MainRoutes{
                 option(value := "M.Eng.", "M.Eng.")
               )
             ),
+            div(cls := "grad-year-div", 
+              label("Graduation Year", span(cls := "red-star", "*")),
+              input(cls := "grad-year", `type` := "number", min := 1990, max := 2021)
+            ),
+            p(cls := "invalid-grad-year"),
             div(cls := "uni-div", 
               label("University", span(cls := "red-star", "*")),
               input(cls := "uni", `type` := "text", autofocus := "")
@@ -282,7 +288,7 @@ object GPACalculatorServer extends cask.MainRoutes{
             img(src := "/static/logo.png")
           ),
           div(cls := "master-title", 
-            ("Computer Science Master Admission")
+            ("Computer Science Master Admission (not operational for now)")
           ),
           div(cls := "school-title", 
             ("McGill University")

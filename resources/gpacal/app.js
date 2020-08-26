@@ -33,8 +33,8 @@ function getStudentJsonRequest(sid, firstName, lastName, mid, email, date){
     return obj;
 }
 
-function getTransJsonRequest(sid, tid, degree, newUni, newCountry){
-    let obj = {"tid":tid,"sid":sid, "degree":degree,"university":newUni, "country":newCountry};
+function getTransJsonRequest(sid, tid, degree, gradYear, newUni, newCountry){
+    let obj = {"tid":tid,"sid":sid, "degree":degree, "gradyear":gradYear, "university":newUni, "country":newCountry};
     return obj;
 }
 
@@ -94,8 +94,10 @@ function checkTable(ccode, cname, credit, grade){
     return false;
 }
 
-function checkTransInfo(trans, newUni, newCountry){
+function checkTransInfo(trans, newUni, newCountry, gradYear){
     let invalidUni = trans.getElementsByClassName("invalid-uni")[0];
+    let invalidGradYear = trans.getElementsByClassName("invalid-grad-year")[0];
+
     let invalidCountry = trans.getElementsByClassName("invalid-country")[0];
     let isValid = true;
     if(!newUni.value){
@@ -103,6 +105,12 @@ function checkTransInfo(trans, newUni, newCountry){
         isValid = false;
     }else{
         invalidUni.innerHTML = "";
+    }
+    if(!gradYear.value){
+        invalidGradYear.innerHTML = "Please specify the graduation year."
+        isValid = false;
+    }else{
+        invalidGradYear.innerHTML = "";
     }
     if(newCountry.value == "-"){
         invalidCountry.innerHTML = "Please specify the country of the university."
@@ -247,6 +255,12 @@ function insertData(mainPage, transTable, data){
         transDiv.setAttribute('class', 'trans-info-review');
         let trans_ul = document.createElement('ul');
         trans_ul.setAttribute('id', 'trans-review');
+        let li = document.createElement('li');
+        li.innerHTML = "Degree:".bold() + "   " + data['transcripts'][i]['trans_info']['degree'];
+        trans_ul.appendChild(li);
+        li = document.createElement('li');
+        li.innerHTML = "Graduation Year:".bold() + "   " + data['transcripts'][i]['trans_info']['gradyear'];
+        trans_ul.appendChild(li);
         li = document.createElement('li');
         li.innerHTML = "University:".bold() + "   " + data['transcripts'][i]['trans_info']['university'];
         trans_ul.appendChild(li);
@@ -371,10 +385,12 @@ function initListeners(){
         for(let i=0; i<numTrans; i++){
             let trans = document.getElementsByClassName("transcript")[i];
             let degreeSelect = trans.getElementsByClassName("degree-select")[0];
+            let gradYear = trans.getElementsByClassName("grad-year")[0];
             let uniInput = trans.getElementsByClassName("uni")[0];
             let countrySelect = trans.getElementsByClassName("country")[0];
             uniInput.value = globalData["transcripts"][i]["trans_info"]["university"];
             countrySelect.value = globalData["transcripts"][i]["trans_info"]["country"];
+            gradYear.value = globalData["transcripts"][i]["trans_info"]["gradyear"];
             if(globalData["transcripts"][i]["trans_info"]["country"] !== "-"){
                 let gpaScaleTable = trans.getElementsByClassName("gpa-scale-table-div")[0];
                 let gpaScaleLabel = trans.getElementsByClassName("gpa-scale-label")[0];
@@ -452,9 +468,10 @@ function initListeners(){
             let trans_obj = {};
             let trans = document.getElementsByClassName("transcript")[i];
             let degree = trans.getElementsByClassName("degree-select")[0];
+            let gradYear = trans.getElementsByClassName("grad-year")[0];
             let newUni = trans.getElementsByClassName("uni")[0];
             let newCountry = trans.getElementsByClassName("country")[0];
-            trans_obj["trans_info"] = getTransJsonRequest(0, 0, degree.value, newUni.value, newCountry.value);
+            trans_obj["trans_info"] = getTransJsonRequest(0, 0, degree.value, gradYear.value, newUni.value, newCountry.value);
             let numRow = trans.getElementsByClassName("ccode-entry").length;
             let entries = [];
             for(let j=0; j<numRow; j++){
@@ -503,13 +520,15 @@ function initListeners(){
                     let trans = document.getElementsByClassName("transcript")[i];
                     let degree = trans.getElementsByClassName("degree-select")[0];
                     let newUni = trans.getElementsByClassName("uni")[0];
+                    let gradYear = trans.getElementsByClassName("grad-year")[0];
+
                     let newCountry = trans.getElementsByClassName("country")[0];
-                    if(!checkTransInfo(trans, newUni, newCountry)){
+                    if(!checkTransInfo(trans, newUni, newCountry, gradYear)){
                         return;
                     }
                     trans.getElementsByClassName("gpa-scale-label")[0].innerHTML = "";
                     trans.getElementsByClassName("gpa-scale-table-div")[0].innerHTML = "";
-                    trans_obj["trans_info"] = getTransJsonRequest(0, 0, degree.value, newUni.value, newCountry.value);
+                    trans_obj["trans_info"] = getTransJsonRequest(0, 0, degree.value, gradYear.value, newUni.value, newCountry.value);
                     let numRow = trans.getElementsByClassName("ccode-entry").length;
                     let entries = [];
                     trans.getElementsByClassName("invalid-table")[0].innerHTML = "";

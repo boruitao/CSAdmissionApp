@@ -75,12 +75,12 @@ img {
     margin-top: 25px;
     margin-bottom: 0px;
 }
-.uni-div, .country-div, .first-name-div, .last-name-div, .degree-div{
+.uni-div, .country-div, .first-name-div, .last-name-div, .degree-div, .grad-year-div{
     margin-top: 13px;
     width: 300px;
 }
 
-.uni, .country, .student-first-name, .student-last-name, .new-student-mid, .new-student-email{
+.uni, .country, .student-first-name, .student-last-name, .new-student-mid, .new-student-email, .grad-year{
     padding: 10px, 5px;
     font-size: 16px;
     border: 1px solid #cdcdcd;
@@ -104,7 +104,7 @@ img {
     text-align: center;
 }
 
-.uni, .country,.student-first-name, .student-last-name{
+.uni, .country,.student-first-name, .student-last-name, .grad-year{
     width: 90%;
     height: 40px;
 }
@@ -113,6 +113,11 @@ label {
     font-size: 14px;
     font-weight: bold;
     color: #151313
+}
+
+.subtitle{
+    margin-top: 10px;
+    margin-bottom: 4px;
 }
 
 .review-button, .back-submit-div{
