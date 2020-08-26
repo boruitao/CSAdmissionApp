@@ -10,7 +10,8 @@ import upickle.default._
 
 object GPACalculatorServer extends cask.MainRoutes{
   val tmpDb = java.nio.file.Files.createTempDirectory("gpa-calculator-cask-sqlite")
-
+  override def port = 443
+  override def host = "http://admissions.cs.mcgill.ca/"
   object ctx extends SqliteJdbcContext(
     SnakeCase,
     ConfigFactory.parseString(
