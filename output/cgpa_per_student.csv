@@ -1,0 +1,5 @@
+sid,firstname,lastname,mid,trans1_cgpa,trans1_degree,trans1_gradyear,trans1_country,trans1_university,trans2_cgpa,trans2_degree,trans2_gradyear,trans2_country,trans2_university,trans3_cgpa,trans3_degree,trans3_gradyear,trans3_country,trans3_university,trans4_cgpa,trans4_degree,trans4_gradyear,trans4_country,trans4_university
+1,tom,tao,26067,3.4285714285714284,a,2010,china,qinghua,3.1333333333333337,b,2011,canada,trt,3.15,c,2012,usa,harward,3.7428571428571424,d,2013,australia,blah
+2,Jerry,Ran,27077,3.2000000000000006,f,2014,uk,qinghua,3.6,g,2015,iran,trt,2.7,h,2016,korea,harward,4.0,i,2017,japan,blah
+3,doris,wang,28087,3.0,j,20118,france,qinghua,3.2999999999999994,k,2019,spain,trt,3.7,l,2020,germany,harward,3.7999999999999994,m,2000,new zealand,blah
+4,kobe,bryant,29999,3.485714285714286,n,2001,india,qinghua,3.6,o,2002,egypt,trt,3.0599999999999996,p,2003,usa,harward,3.25,q,2004,mars,blah
