@@ -4,14 +4,14 @@ function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
     var expires = "expires="+d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/; domain=localhost";
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
 function unsetCookie(cname) {
     var d = new Date();
     d.setTime(d.getTime() - (60 * 24 * 60 * 60 * 1000));
     var expires = "expires="+d.toUTCString();
-    document.cookie = cname + "=;" + expires + ";path=/; domain=localhost";
+    document.cookie = cname + "=;" + expires + ";path=/";
 }
 
 function getCookie(cname) {
@@ -335,6 +335,7 @@ function addRows(transTable, numRows, data){
 }
 function initListeners(){
     let globalData = {};
+    let inReviewPage = false;
     if(getCookie("gpaobj")){
         globalData = JSON.parse(getCookie("gpaobj"))
     }
@@ -461,40 +462,44 @@ function initListeners(){
     ); 
 
     window.onunload = function (e) {
-        let data = {}
-        //let sid = generateRandomId();
-        // data["student"] = getStudentJsonRequest(0, firstNameInput.value, lastNameInput.value, 
-        //     midInput.value, emailInput.value, tlisInput.value, treadInput.value, tspeakInput.value, twriteInput.value,
-        //     gverbalInput.value, gquantInput.value, gwriteInput.value);
-        data["student"] = getStudentJsonRequest(0, firstNameInput.value, lastNameInput.value, 
-            midInput.value, emailInput.value, 0);
-        // parse transcript tables
-        let all_trans = [];
-        let numTrans = document.getElementsByClassName("transcript").length;
-        for(let i=0; i<numTrans; i++){
-            let trans_obj = {};
-            let trans = document.getElementsByClassName("transcript")[i];
-            let degree = trans.getElementsByClassName("degree-select")[0];
-            let gradYear = trans.getElementsByClassName("grad-year")[0];
-            let newUni = trans.getElementsByClassName("uni")[0];
-            let newCountry = trans.getElementsByClassName("country")[0];
-            trans_obj["trans_info"] = getTransJsonRequest(0, 0, degree.value, gradYear.value, newUni.value, newCountry.value);
-            let numRow = trans.getElementsByClassName("ccode-entry").length;
-            let entries = [];
-            for(let j=0; j<numRow; j++){
-                let ccode = trans.getElementsByClassName("ccode-entry")[j];
-                let cname = trans.getElementsByClassName("cname-entry")[j];
-                let credit = trans.getElementsByClassName("credit-entry")[j];
-                let grade = trans.getElementsByClassName("grade-entry")[j];
-                if(ccode.value === "" || cname.value === "" || credit.value === "" || grade.value === "") continue;
-                entries.push(getEntryJsonRequest(0, 0, ccode.value, cname.value, credit.value, grade.value));
+        if(!inReviewPage){
+            let data = {}
+            //let sid = generateRandomId();
+            // data["student"] = getStudentJsonRequest(0, firstNameInput.value, lastNameInput.value, 
+            //     midInput.value, emailInput.value, tlisInput.value, treadInput.value, tspeakInput.value, twriteInput.value,
+            //     gverbalInput.value, gquantInput.value, gwriteInput.value);
+            data["student"] = getStudentJsonRequest(0, firstNameInput.value, lastNameInput.value, 
+                midInput.value, emailInput.value, 0);
+            // parse transcript tables
+            let all_trans = [];
+            let numTrans = document.getElementsByClassName("transcript").length;
+            for(let i=0; i<numTrans; i++){
+                let trans_obj = {};
+                let trans = document.getElementsByClassName("transcript")[i];
+                let degree = trans.getElementsByClassName("degree-select")[0];
+                let gradYear = trans.getElementsByClassName("grad-year")[0];
+                let newUni = trans.getElementsByClassName("uni")[0];
+                let newCountry = trans.getElementsByClassName("country")[0];
+                trans_obj["trans_info"] = getTransJsonRequest(0, 0, degree.value, gradYear.value, newUni.value, newCountry.value);
+                let numRow = trans.getElementsByClassName("ccode-entry").length;
+                let entries = [];
+                for(let j=0; j<numRow; j++){
+                    let ccode = trans.getElementsByClassName("ccode-entry")[j];
+                    let cname = trans.getElementsByClassName("cname-entry")[j];
+                    let credit = trans.getElementsByClassName("credit-entry")[j];
+                    let grade = trans.getElementsByClassName("grade-entry")[j];
+                    if(ccode.value === "" || cname.value === "" || credit.value === "" || grade.value === "") continue;
+                    entries.push(getEntryJsonRequest(0, 0, ccode.value, cname.value, credit.value, grade.value));
+                }
+                trans_obj["trans_table"] = entries;
+                all_trans.push(trans_obj);
             }
-            trans_obj["trans_table"] = entries;
-            all_trans.push(trans_obj);
+            data["transcripts"] = all_trans;
+            console.log("printing the upload");
+            console.log(data);
+            setCookie("gpaobj", JSON.stringify(data), 7);
         }
-        data["transcripts"] = all_trans;
-        console.log(data);
-        setCookie("gpaobj", JSON.stringify(data), 7);
+        initListeners();
     };
 
     reviewButton.addEventListener(
@@ -563,7 +568,8 @@ function initListeners(){
                 }
                 data["transcripts"] = all_trans;
                 console.log(data);
-                
+                setCookie("gpaobj", JSON.stringify(data), 7);
+                inReviewPage = true;
                 // store the current page
                 // console.log(mainPage.cloneNode(true));
                 window.sessionStorage.setItem('main-page', mainPage.cloneNode(true).innerHTML);
@@ -590,7 +596,7 @@ function initListeners(){
                         }
                         let storedPage = window.sessionStorage.getItem('main-page');
                         mainPage.innerHTML = storedPage;
-                        setCookie("gpaobj", JSON.stringify(data), 7);
+                       // setCookie("gpaobj", JSON.stringify(data), 7);
                         initListeners();                      
                     }
                 );
