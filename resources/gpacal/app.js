@@ -1,10 +1,17 @@
 let state = "all";
 let gpaCalApp = document.getElementsByClassName("gpa-calculator")[0];
-function setCookie(cvalue, exdays) {
+function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
     var expires = "expires="+d.toUTCString();
-    document.cookie = "gpaobj=" + cvalue + ";" + expires + ";path=/";
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/; domain=localhost";
+}
+
+function unsetCookie(cname) {
+    var d = new Date();
+    d.setTime(d.getTime() - (60 * 24 * 60 * 60 * 1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=;" + expires + ";path=/; domain=localhost";
 }
 
 function getCookie(cname) {
@@ -13,12 +20,12 @@ function getCookie(cname) {
     for(var i = 0; i < ca.length; i++) {
         var c = ca[i];
         while (c.charAt(0) == ' ') {
-        c = c.substring(1);
+            c = c.substring(1);
         }
         if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
+            return c.substring(name.length, c.length);
         }
-}
+    }
     return "";
 }
 
@@ -106,8 +113,8 @@ function checkTransInfo(trans, newUni, newCountry, gradYear){
     }else{
         invalidUni.innerHTML = "";
     }
-    if(!gradYear.value){
-        invalidGradYear.innerHTML = "Please specify the graduation year."
+    if(!gradYear.value || Number(gradYear.value) < 1990 || Number(gradYear.value) > 2021){
+        invalidGradYear.innerHTML = "Please specify the correct graduation year."
         isValid = false;
     }else{
         invalidGradYear.innerHTML = "";
@@ -487,7 +494,7 @@ function initListeners(){
         }
         data["transcripts"] = all_trans;
         console.log(data);
-        setCookie(JSON.stringify(data), 7);
+        setCookie("gpaobj", JSON.stringify(data), 7);
     };
 
     reviewButton.addEventListener(
@@ -583,7 +590,7 @@ function initListeners(){
                         }
                         let storedPage = window.sessionStorage.getItem('main-page');
                         mainPage.innerHTML = storedPage;
-                        setCookie(JSON.stringify(data), 7);
+                        setCookie("gpaobj", JSON.stringify(data), 7);
                         initListeners();                      
                     }
                 );
@@ -608,7 +615,8 @@ function initListeners(){
                             for (i = 0; i < inputs.length; ++i) {
                                 inputs[i].value = "";
                             }
-                            document.cookie = "gpaobj= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
+                            unsetCookie("gpaobj");
+                            globalData = {};
                             gpaCalApp.innerHTML = text;
                             console.log("done");
                         //    initListeners()
