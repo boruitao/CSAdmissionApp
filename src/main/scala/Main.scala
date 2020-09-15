@@ -8,8 +8,8 @@ import java.util.Arrays
 import scala.io.Source
 import upickle.default._
 
-object GPACalculatorServer extends cask.MainRoutes{
-  val tmpDb = java.nio.file.Files.createTempDirectory("gpa-calculator-cask-sqlite")
+object CSAdmissionAppServer extends cask.MainRoutes{
+  val tmpDb = java.nio.file.Files.createTempDirectory("cs-admission-cask-sqlite")
   // override def port = 80
   // override def host = "admissions.cs.mcgill.ca"
   object ctx extends SqliteJdbcContext(
@@ -201,9 +201,9 @@ object GPACalculatorServer extends cask.MainRoutes{
               label("Country", span(cls := "red-star", "*")),
               select(cls := "country",
                 option(value := "-", "-"),
-                for(countryname <- getListOfFiles(new File("./resources/gpacal/html")).sortWith(_.getName()<_.getName())) yield option(
+                for(countryname <- getListOfFiles(new File("./resources/cs_admission/html")).sortWith(_.getName()<_.getName())) yield option(
                   value := countryname.getName().substring(0, countryname.getName().indexOf(".html")).toLowerCase(),
-                  attr("htmlcontent") := getHTMLContent("./resources/gpacal/html/"+countryname.getName()),
+                  attr("htmlcontent") := getHTMLContent("./resources/cs_admission/html/"+countryname.getName()),
                   countryname.getName().substring(0, countryname.getName().indexOf(".html")).toLowerCase()
                 )
               )
@@ -420,11 +420,11 @@ object GPACalculatorServer extends cask.MainRoutes{
         head(
           meta(charset := "utf-8"),
           meta(name := "viewport", content := "width=device-width, initial-scale=1"),
-          tags2.title("Student • GPA_CALCULATOR"),
+          tags2.title("Student • CS_Admission"),
           link(rel := "stylesheet", href := "/static/style.css")
         ),
         body(
-          tags2.section(cls := "gpa-calculator", renderBody("all")),
+          tags2.section(cls := "cs-admission", renderBody("all")),
           script(src := "/static/app.js")
         )
       )
@@ -434,7 +434,7 @@ object GPACalculatorServer extends cask.MainRoutes{
   // @cask.staticResources("/static")
   // def static() = "todo"
   @cask.staticFiles("/static")
-  def static() = "resources/gpacal/"
+  def static() = "resources/cs_admission/"
 
   initialize()
 }

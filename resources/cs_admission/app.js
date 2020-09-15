@@ -1,5 +1,5 @@
 let state = "all";
-let gpaCalApp = document.getElementsByClassName("gpa-calculator")[0];
+let csAdmissionApp = document.getElementsByClassName("cs-admission")[0];
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -623,7 +623,7 @@ function initListeners(){
                             }
                             unsetCookie("gpaobj");
                             globalData = {};
-                            gpaCalApp.innerHTML = text;
+                            csAdmissionApp.innerHTML = text;
                             console.log("done");
                         //    initListeners()
                         })
