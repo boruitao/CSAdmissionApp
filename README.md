@@ -1,6 +1,17 @@
-# GPACalculator
+# McGill CS Admission App
 
-To run this app, in the root directory, issue the following command:
+This full-stack application is implemented using Scala with the Cask micro-framework, which is simple and flexible to build and run Scala webservers. This application is meant to extract CS Master applicant's information and run computations, such as calculating the CGPA, etc. 
+
+Main page:
+
+<img src="https://github.com/boruitao/CSAdmissionApp/blob/master/images/main.png" width="400" height="400"> <img src="https://github.com/boruitao/CSAdmissionApp/blob/master/images/transcript.png" width="450" height="400">
+
+Review page:
+
+<img src="https://github.com/boruitao/CSAdmissionApp/blob/master/images/review.png" width="400" height="400">
+
+#### Running the application
+In the root directory, issue the following command:
 ```
 sudo sbt "~run"
 ```
